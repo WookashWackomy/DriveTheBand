@@ -1,15 +1,9 @@
 package controller;
 
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-import controller.ChooseSongPresenter;
-import controller.DriveTheBandController;
 import controller.helpers.GoogleDriveHook;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -22,7 +16,6 @@ import view.MainAppView;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,7 +42,7 @@ public class DriveTheBandAppController {
         this.mainAppView = new MainAppView(driveTheBandController,currentSong,tracks,currentUser);
     }
 
-    public void initialize() throws IOException {
+    public void initialize() {
         initGoogleDrive();
         initLayout();
         chooseSongPresenter = new ChooseSongPresenter(songList);

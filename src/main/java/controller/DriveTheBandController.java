@@ -2,17 +2,14 @@ package controller;
 
 import com.google.api.services.drive.Drive;
 import controller.helpers.GoogleDriveTransfer;
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.media.AudioClip;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import model.Song;
@@ -22,8 +19,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-//import com.google.api.services.drive.model.File;
-import java.io.*;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.time.LocalDateTime;
@@ -31,41 +31,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javafx.beans.binding.Bindings.size;
+//import com.google.api.services.drive.model.File;
 
 public class DriveTheBandController{
-    @FXML
-    private Label songTitleLabel;
-    @FXML
-    private Button deleteSelectedButton;
-    @FXML
-    private Button playButton;
-    @FXML
-    private Button stopButton;
-    @FXML
-    private Button addNewTrackButton;
 
     private GoogleDriveTransfer googleDriveTransfer;
     private DriveTheBandAppController driveTheBandAppController;
     private ObservableList<Track> tracks;
     private List<MediaPlayer> mediaPlayers = new ArrayList<>();
     private Song currentSong;
-    @FXML
-    public Button chooseSongButton;
-    @FXML
-    public TableView<Track> trackTable;
-    @FXML
-    public TableColumn<Track,String> trackName;
-    @FXML
-    public TableColumn<Track,String> creatorUser;
-    @FXML
-    public TableColumn<Track, LocalDateTime> creationDate;
 
     private Drive service;
     private User currentUser;
     private List<User> userList;
 
-    public void setService(Drive service) throws IOException {
+    public void setService(Drive service) {
         this.service = service;
         if(service != null) {
             System.out.println("service nullem nie jest");

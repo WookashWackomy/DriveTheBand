@@ -10,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import java.lang.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import model.Song;
 import model.Track;
@@ -40,6 +41,7 @@ public class ChooseSongView{
 
         view.setPrefHeight(400);
         view.setPrefWidth(200);
+        view.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         songNameColumn.setText("Choose song");
         songTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -48,6 +50,7 @@ public class ChooseSongView{
         BorderPane.setAlignment(hBox, javafx.geometry.Pos.CENTER);
         hBox.setAlignment(javafx.geometry.Pos.BOTTOM_RIGHT);
         hBox.setSpacing(5.0);
+        hBox.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         cancelButton.setMnemonicParsing(false);
         cancelButton.setPrefWidth(60.0);

@@ -8,9 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import model.Song;
@@ -58,9 +57,11 @@ public class CreateSongView {
         BorderPane.setAlignment(hBox, javafx.geometry.Pos.CENTER);
         hBox.setAlignment(javafx.geometry.Pos.BOTTOM_RIGHT);
         hBox.setSpacing(5.0);
+        hBox.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         vBox.setPadding(new Insets(10));
         vBox.setSpacing(5);
+        vBox.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         cancelButton.setMnemonicParsing(false);
         cancelButton.setPrefWidth(60.0);

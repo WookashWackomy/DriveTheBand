@@ -4,31 +4,18 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import controller.helpers.GoogleDriveTransfer;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.stage.Stage;
 import model.Song;
-import model.Track;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 public class ChooseSongPresenter {
 
     private List<Song> songList;
-    @FXML
-    private TableColumn<Song, String> songNameColumn;
-
     private Drive service;
     private GoogleDriveTransfer googleDriveTransfer;
 
@@ -65,7 +52,7 @@ public class ChooseSongPresenter {
 
     public void handleOkAction(String folderName) {
         String pageToken = null;
-        
+
 
         List<File> files = null;
 

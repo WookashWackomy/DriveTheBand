@@ -1,13 +1,16 @@
 package view;
 
+import com.sun.prism.paint.Paint;
 import controller.DriveTheBandController;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.Song;
@@ -89,10 +92,12 @@ public class MainAppView{
 
         view.setPrefHeight(400.0);
         view.setPrefWidth(600.0);
+        view.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         view.setAlignment(trackTable, Pos.CENTER);
         trackTable.setPrefHeight(200.0);
         trackTable.setPrefWidth(500.0);
+        trackTable.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         trackStringTableColumn.setText("Name");
 
@@ -105,6 +110,7 @@ public class MainAppView{
         view.setAlignment(vBox, Pos.CENTER);
         vBox.setAlignment(Pos.TOP_RIGHT);
         vBox.setSpacing(20);
+        vBox.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         view.setAlignment(songTitleLabel, Pos.CENTER);
         songTitleLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
@@ -114,27 +120,22 @@ public class MainAppView{
         labelOfSongTitle.setFont(Font.font("Tahoma", 20));
 
         view.setAlignment(chooseSongButton, Pos.TOP_RIGHT);
-       // chooseSongButton.setOnAction(this::handleChooseSongButton);
         chooseSongButton.setPrefWidth(200);
         chooseSongButton.setText("Choose a song");
 
         view.setAlignment(deleteSelectedButton, Pos.TOP_RIGHT);
-        //deleteSelectedButton.setOnAction(this::handleDeleteSelectedButton);
         deleteSelectedButton.setPrefWidth(200);
         deleteSelectedButton.setText("delete selected...");
 
         view.setAlignment(playButton, Pos.TOP_RIGHT);
-        //playButton.setOnAction(this::handlePlayButton);
         playButton.setPrefWidth(200);
         playButton.setText("play selected track(s)");
 
         view.setAlignment(stopButton, Pos.TOP_RIGHT);
-        //stopButton.setOnAction(this::handleStopButton);
         stopButton.setPrefWidth(200);
         stopButton.setText("stop playing");
 
         view.setAlignment(addNewTrackButton, Pos.TOP_RIGHT);
-        //addNewTrackButton.setOnAction(this::handleAddNewTrackButton);
         addNewTrackButton.setPrefWidth(200);
         addNewTrackButton.setText("add new stem");
 
