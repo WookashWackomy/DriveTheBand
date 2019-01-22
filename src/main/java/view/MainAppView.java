@@ -94,7 +94,6 @@ public class MainAppView{
         view.setPrefWidth(600.0);
         view.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
-        view.setAlignment(trackTable, Pos.CENTER);
         trackTable.setPrefHeight(200.0);
         trackTable.setPrefWidth(500.0);
         trackTable.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
@@ -107,46 +106,39 @@ public class MainAppView{
         trackTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         view.setLeft(trackTable);
 
-        view.setAlignment(vBox, Pos.CENTER);
         vBox.setAlignment(Pos.TOP_RIGHT);
         vBox.setSpacing(20);
         vBox.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
-        view.setAlignment(songTitleLabel, Pos.CENTER);
         songTitleLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
         songTitleLabel.setFont(Font.font("Gill Sans", FontWeight.BOLD,30));
-        view.setAlignment(labelOfSongTitle, Pos.CENTER);
+
         labelOfSongTitle.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
         labelOfSongTitle.setFont(Font.font("Tahoma", 20));
 
-        view.setAlignment(chooseSongButton, Pos.TOP_RIGHT);
         chooseSongButton.setPrefWidth(200);
         chooseSongButton.setText("Choose a song");
 
-        view.setAlignment(deleteSelectedButton, Pos.TOP_RIGHT);
         deleteSelectedButton.setPrefWidth(200);
         deleteSelectedButton.setText("delete selected...");
 
-        view.setAlignment(playButton, Pos.TOP_RIGHT);
         playButton.setPrefWidth(200);
         playButton.setText("play selected track(s)");
 
-        view.setAlignment(stopButton, Pos.TOP_RIGHT);
         stopButton.setPrefWidth(200);
         stopButton.setText("stop playing");
 
-        view.setAlignment(addNewTrackButton, Pos.TOP_RIGHT);
         addNewTrackButton.setPrefWidth(200);
         addNewTrackButton.setText("add new stem");
 
-        view.setAlignment(createNewSongButton, Pos.TOP_RIGHT);
+        createNewSongButton.setPrefWidth(200);
         createNewSongButton.setText("create new song");
 
-        view.setAlignment(userNameTextField, Pos.BOTTOM_CENTER);
         userNameTextField.setAlignment(Pos.CENTER);
         userNameTextField.setFont(Font.font("Gill Sans", FontWeight.BOLD,20));
 
         view.setRight(vBox);
+        vBox.setAlignment(Pos.BASELINE_CENTER);
 
         trackTable.getColumns().add(trackStringTableColumn);
         trackTable.getColumns().add(creatorUserColumn);
@@ -161,6 +153,7 @@ public class MainAppView{
         vBox.getChildren().add(createNewSongButton);
         vBox.getChildren().add(userNameTextField);
         userNameTextField.setText(" ");
+        songTitleLabel.setBorder(new Border(new BorderStroke(Color.BLACK,BorderStrokeStyle.SOLID,CornerRadii.EMPTY,BorderStroke.THIN)));
 
 
     }
