@@ -5,14 +5,19 @@ import controller.helpers.GoogleDriveTransfer;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 import model.Song;
 import model.Track;
+import model.User;
 import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -28,7 +33,7 @@ import java.util.List;
 
 import static javafx.beans.binding.Bindings.size;
 
-public class DriveTheBandController {
+public class DriveTheBandController{
     @FXML
     private Label songTitleLabel;
     @FXML
@@ -42,10 +47,9 @@ public class DriveTheBandController {
 
     private GoogleDriveTransfer googleDriveTransfer;
     private DriveTheBandAppController driveTheBandAppController;
-    private ObservableList<Track> tracks = FXCollections.observableArrayList();
-    private List<AudioClip> mediaPlayers = new ArrayList<>();
+    private ObservableList<Track> tracks;
+    private List<MediaPlayer> mediaPlayers = new ArrayList<>();
     private Song currentSong;
-
     @FXML
     public Button chooseSongButton;
     @FXML
@@ -58,6 +62,8 @@ public class DriveTheBandController {
     public TableColumn<Track, LocalDateTime> creationDate;
 
     private Drive service;
+    private User currentUser;
+    private List<User> userList;
 
     public void setService(Drive service) throws IOException {
         this.service = service;
@@ -68,51 +74,13 @@ public class DriveTheBandController {
         }
     }
 
-
-    @FXML
-    private void initialize() {
-        googleDriveTransfer = new GoogleDriveTransfer();
-        trackTable.getSelectionModel().setSelectionMode(
-                SelectionMode.MULTIPLE);
-
-        trackTable.setEditable(true);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-
-        trackName.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
-        creatorUser.setCellValueFactory(cellData -> cellData.getValue().getUserNameProperty());
-        creationDate.setCellValueFactory(cellData -> cellData.getValue().getDateProperty());
-        creationDate.setCellFactory(col -> new TableCell<Track,LocalDateTime>(){
-            @Override
-            protected void updateItem(LocalDateTime date, boolean empty){
-                super.updateItem(date,empty);
-                if(empty){
-                    setText("");
-                } else{
-                    setText(formatter.format(date));
-                }
-            }
-        });
-        playButton.disableProperty().bind(Bindings.or(size(tracks).isEqualTo(0),size(trackTable.getSelectionModel().getSelectedItems()).isEqualTo(0)));
-        stopButton.disableProperty().bind(size(tracks).isEqualTo(0));
-        addNewTrackButton.disableProperty().bind(size(tracks).isEqualTo(0));
-        deleteSelectedButton.disableProperty().bind(Bindings.or(size(tracks).isEqualTo(0),size(trackTable.getSelectionModel().getSelectedItems()).isEqualTo(0)));
-
-        currentSong = new Song("","");
-
-    }
-
     public void handleChooseSongButton() {
 
         this.driveTheBandAppController.showChooseSongDialog();
         loadTracks();
-        songTitleLabel.setText(currentSong.getNameProperty().getValue());
-        songTitleLabel.setMaxWidth(Double.MAX_VALUE);
-        songTitleLabel.setAlignment(Pos.CENTER);
     }
 
-    public void handleDeleteSelectedButton() {
-        List<Track> selectedTracks = trackTable.getSelectionModel().getSelectedItems();
+    public void handleDeleteSelectedButton(List<Track> selectedTracks) {
         for(Track track : selectedTracks){
             try {
                     googleDriveTransfer.deleteFile(service, track.getDriveFileID());
@@ -123,7 +91,12 @@ public class DriveTheBandController {
         }
     }
 
-    public DriveTheBandController(){
+    public DriveTheBandController(Song currentSong,ObservableList<Track> tracks,User currentUser){
+        this.currentSong = currentSong;
+        this.tracks = tracks;
+        this.googleDriveTransfer = new GoogleDriveTransfer();
+        this.currentUser = currentUser;
+        this.userList = new ArrayList<User>();
     }
 
     public void setDriveTheBandAppController(DriveTheBandAppController driveTheBandAppController) {
@@ -131,21 +104,33 @@ public class DriveTheBandController {
     }
 
 
-    public void handlePlayButton() {
-        List<Track> selectedTracks = trackTable.getSelectionModel().getSelectedItems();
+    public void handlePlayButton(List<Track> selectedTracks) {
+
         try {
             if(!selectedTracks.isEmpty()) {
                 for (Track track : selectedTracks) {
-                    AudioClip mediaPlayer = new AudioClip(track.getPath().toURI().toString());
+                    for(MediaPlayer mediaPlayerInList: mediaPlayers){
+                        if(mediaPlayerInList.getMedia().getSource().toString().equals(track.getPath().toURI().toString())){
+                            mediaPlayerInList.stop();
+                            mediaPlayerInList.dispose();
+                            mediaPlayers.remove(mediaPlayerInList);
+                        }
+                    }
+                    Media playedMedia = new Media(track.getPath().toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(playedMedia);
                     mediaPlayers.add(mediaPlayer);
                 }
             }else{
+                stopAndClearMediaPlayers();
                 for (Track track : tracks) {
-                    AudioClip mediaPlayer = new AudioClip(track.getPath().toURI().toString());
+                    Media playedMedia = new Media(track.getPath().toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(playedMedia);
                     mediaPlayers.add(mediaPlayer);
                 }
             }
-            for (AudioClip mediaPlayer : mediaPlayers) {
+            Duration currentTime = mediaPlayers.get(0).getCurrentTime();
+            for (MediaPlayer mediaPlayer : mediaPlayers) {
+                mediaPlayer.setStartTime(currentTime);
                 mediaPlayer.play();
             }
         }catch (URISyntaxException e){
@@ -153,9 +138,14 @@ public class DriveTheBandController {
         }
     }
 
-    public void handleStopButton() {
-        for(AudioClip mediaPlayer: mediaPlayers){
+    public void handleStopButton(List<Track> selectedTracks) {
+            stopAndClearMediaPlayers();
+    }
+
+    private void stopAndClearMediaPlayers() {
+        for(MediaPlayer mediaPlayer: mediaPlayers){
             mediaPlayer.stop();
+            mediaPlayer.dispose();
         }
         mediaPlayers.clear();
     }
@@ -175,6 +165,7 @@ public class DriveTheBandController {
         String fileID = null;
         String songName = null;
         LocalDateTime date = null;
+        String userName = null;
         for (File file : dirList) {
             try {
                 if (FilenameUtils.getExtension(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(), "UTF-8").substring(1) + file.getName()).equals("mp3")){
@@ -187,18 +178,23 @@ public class DriveTheBandController {
                         songName = service.files().get(parentID).setFields("id,name").execute().getName();
                         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
                         date = LocalDateTime.parse(createdTime,formatter);
+                        userName = (String) jsonObject.get("description");
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
                     }
-                    currentSong = new Song(songName, parentID);
+                    User songUser = new User(userName);
+
+                    currentSong.setName(songName);
+                    currentSong.setID(parentID);
                     Track track = new Track(currentSong, file.getName(), getClass().getResource("/SongFiles/" + file.getName()), fileID,date);
+                    track.setCreator(songUser);
                     tracks.add(track);
                 }
+                currentSong.setTracks(tracks);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-        trackTable.setItems(tracks);
     }
 
     public void handleAddNewTrackButton() {
@@ -211,13 +207,18 @@ public class DriveTheBandController {
         if (selectedFile != null){
             try {
                 System.out.println(selectedFile.getAbsolutePath());
-                String newFileID = googleDriveTransfer.uploadFileToFolder(service, selectedFile.getAbsolutePath(), currentSong.getDriveFileID()).getId();
+                String newFileID = googleDriveTransfer.uploadFileToFolder(service, selectedFile.getAbsolutePath(), currentSong.getDriveFileID(),currentUser.getNameProperty().getValue()).getId();
                 Track track = new Track(currentSong, selectedFile.getName(), selectedFile.toURI().toURL(), newFileID, LocalDateTime.now());
+                track.setCreator(new User(currentUser.getNameProperty().getValue()));
                 tracks.add(track);
             }catch (IOException e){
                 e.printStackTrace();
             }
         }
-        trackTable.setItems(tracks);
+    }
+
+    public void handleCreateNewSongButton(){
+        this.driveTheBandAppController.showCreateSongDialog();
+        this.driveTheBandAppController.showChooseSongDialog();
     }
 }

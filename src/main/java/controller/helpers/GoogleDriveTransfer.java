@@ -29,6 +29,12 @@ public class GoogleDriveTransfer {
         jsonObject.put("fileID",file.getId());
         jsonObject.put("parentID",file.getParents().get(0));
         jsonObject.put("createdTime",file.getCreatedTime().toString());
+        if(file.getDescription()== null){
+            jsonObject.put("description","");
+        }
+        else{
+            jsonObject.put("description",file.getDescription().toString());
+        }
 
         try(FileWriter localFile = new FileWriter(URLDecoder.decode(getClass().getResource("/SongFiles/").getPath(),"UTF-8").substring(1) + file.getName() + ".json")){
             localFile.write(jsonObject.toString());
@@ -39,23 +45,24 @@ public class GoogleDriveTransfer {
         System.out.println(jsonObject);
     }
 
-    public File uploadFileToFolder(Drive service, String path, String parentId) throws IOException {
+    public File uploadFileToFolder(Drive service, String path, String parentId,String description) throws IOException {
         String pageToken = null;
         File fileMetadata = new File();
         fileMetadata.setParents(Collections.singletonList(parentId));
         java.io.File filePath = new java.io.File(path);
         fileMetadata.setName(filePath.getName());
+        fileMetadata.setDescription(description);
         FileContent mediaContent = new FileContent("audio/mp3", filePath);
         File fileToUpload;
         List<File> files = service.files().list()
-                .setQ(String.format("name = '%s' and '%s' in parents",filePath.getName(),parentId))
+                .setQ(String.format("name = '%s' and '%s' in parents and trashed=false",filePath.getName(),parentId))
                 .setFields("nextPageToken,files(id,name)")
                 .setPageToken(pageToken)
                 .execute()
                 .getFiles();
         if(files.isEmpty()){
          fileToUpload = service.files().create(fileMetadata, mediaContent)
-                .setFields("id,parents")
+                .setFields("id,parents,description")
                 .execute();
         System.out.println(fileToUpload.getName() + " " + fileToUpload.getId());
         }else{
@@ -67,7 +74,7 @@ public class GoogleDriveTransfer {
     public File getFolder(String folderName,Drive service) throws IOException {
         String pageToken = null;
         FileList result = service.files().list()
-                .setQ(String.format("name = '%s' and mimeType = 'application/vnd.google-apps.folder'",folderName))
+                .setQ(String.format("name = '%s' and mimeType = 'application/vnd.google-apps.folder' and trashed=false",folderName))
                 .setFields("nextPageToken, files(id, name)")
                 .setPageToken(pageToken)
                 .execute();
@@ -78,6 +85,17 @@ public class GoogleDriveTransfer {
             return folders.get(0);
         }
         return null;
+    }
+
+    public List<File> getSubFolders(String folderID,Drive service) throws IOException{
+        FileList result = null;
+        List<File> subfolders = null;
+        result = service.files().list()
+                .setQ(String.format("'%s' in parents and mimeType = 'application/vnd.google-apps.folder'", folderID))
+                .setFields("nextPageToken, files(id, name,createdTime,owners)")
+                .execute();
+        subfolders = result.getFiles();
+        return subfolders;
     }
 
     public void downloadTracks(List<File> tracks,Drive service) throws IOException {
@@ -91,5 +109,39 @@ public class GoogleDriveTransfer {
 
     public void deleteFile(Drive service, String driveFileID) throws IOException {
         service.files().delete(driveFileID).execute();
+    }
+
+    public File createFolder(Drive service, String folderName,String parentId,String description) throws IOException{
+        String pageToken = null;
+        File fileMetadata = new File();
+
+        fileMetadata.setName(folderName);
+        fileMetadata.setParents(Collections.singletonList(parentId));
+        fileMetadata.setMimeType("application/vnd.google-apps.folder");
+        fileMetadata.setDescription(description);
+        List<File> files = service.files().list()
+                .setQ(String.format("name = '%s' and '%s' in parents and trashed=false",folderName,parentId))
+                .setFields("nextPageToken,files(id,name,description)")
+                .setPageToken(pageToken)
+                .execute()
+                .getFiles();
+        File createdFolder;
+        if(files.isEmpty()){
+            createdFolder = service.files().create(fileMetadata)
+                    .setFields("id,parents")
+                    .execute();
+        }else{
+            createdFolder = files.get(0);
+        }
+        return createdFolder;
+    }
+
+    public List<File> getFilesFromFolder(String folderID, Drive service) throws IOException {
+        FileList result = null;
+        result = service.files().list()
+                .setQ(String.format("'%s' in parents and mimeType != 'application/vnd.google-apps.folder'", folderID))
+                .setFields("nextPageToken, files(id, name,createdTime,owners,parents,description)")
+                .execute();
+        return result.getFiles();
     }
 }

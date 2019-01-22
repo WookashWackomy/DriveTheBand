@@ -31,7 +31,7 @@ public class Track extends DriveNode {
 
     public ObjectProperty<LocalDateTime> getDateProperty() { return date; }
 
-    public StringProperty getUserNameProperty(){return creator.getNameProperty();}
+    public StringProperty getCreatorNameProperty(){return creator.getNameProperty();}
 
     public void setDate(LocalDateTime date) {
         this.date.set(date);

@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import model.Song;
 import model.Track;
 
 import java.io.FileOutputStream;
@@ -24,28 +25,22 @@ import org.json.simple.JSONObject;
 
 public class ChooseSongPresenter {
 
+    private List<Song> songList;
     @FXML
-    private TableView<String> songListTable;
-    @FXML
-    private TableColumn<String, String> songNameColumn;
+    private TableColumn<Song, String> songNameColumn;
 
     private Drive service;
-    private Stage stage;
     private GoogleDriveTransfer googleDriveTransfer;
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
+    public ChooseSongPresenter(List<Song> songList){
+        this.songList = songList;
+        this.googleDriveTransfer = new GoogleDriveTransfer();
     }
+
     public void setService(Drive service){this.service = service;}
 
-    @FXML
-    private void initialize(){
-        this.googleDriveTransfer = new GoogleDriveTransfer();
-        songNameColumn.setCellValueFactory(cellData ->
-                new ReadOnlyStringWrapper(cellData.getValue()));
-        songListTable.setItems(FXCollections.observableArrayList());
-    }
-    public void songNamesToTable() {
+
+    public void setSongListTable() {
         FileList result = null;
         List<File> subfolders = null;
 
@@ -54,29 +49,24 @@ public class ChooseSongPresenter {
             folder = googleDriveTransfer.getFolder("BandFolder",service);
             String folderID = folder.getId();
             System.out.println("folder: " + folder.getName() + ' ' + folder.getId());
-            result = service.files().list()
-                    .setQ(String.format("'%s' in parents and mimeType = 'application/vnd.google-apps.folder'", folderID))
-                    .setFields("nextPageToken, files(id, name,createdTime,owners)")
-                    .execute();
-            subfolders = result.getFiles();
+            subfolders = googleDriveTransfer.getSubFolders(folderID,service);
         }catch (IOException e) {
             e.printStackTrace();
         }
-        for (File song : subfolders) {
-            System.out.println(song.getName() + " " + song.getCreatedTime() + " " + song.getOwners().get(0).getDisplayName());
-            songListTable.getItems().add(song.getName());
+        if( subfolders != null) {
+            for (File song : subfolders) {
+                System.out.println(song.getName() + " " + song.getCreatedTime() + " " + song.getOwners().get(0).getDisplayName());
+                songList.add(new Song(song.getName(), song.getId()));
+            }
         }
     }
 
-    public void handleCancelAction(ActionEvent actionEvent) {
-        stage.close();
-    }
 
-    public void handleOkAction(ActionEvent actionEvent) {
+
+    public void handleOkAction(String folderName) {
         String pageToken = null;
-        String folderName = songListTable.getSelectionModel().getSelectedItem();
         
-        FileList result = null;
+
         List<File> files = null;
 
         File folder = null;
@@ -85,11 +75,8 @@ public class ChooseSongPresenter {
 
         String folderID = folder.getId();
         System.out.println("folder: " + folder.getName() + ' ' + folder.getId());
-        result = service.files().list()
-                .setQ(String.format("'%s' in parents and mimeType != 'application/vnd.google-apps.folder'", folderID))
-                .setFields("nextPageToken, files(id, name,createdTime,owners,parents,createdTime)")
-                .execute();
-        files = result.getFiles();
+        files = googleDriveTransfer.getFilesFromFolder(folderID,service);
+
         }catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,7 +86,6 @@ public class ChooseSongPresenter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        stage.close();
     }
 
 

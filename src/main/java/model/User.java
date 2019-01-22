@@ -12,7 +12,13 @@ public class User extends DriveNode {
         this.name = new SimpleStringProperty(name);
     }
 
+    public User(){this.name = new SimpleStringProperty(null);}
+
     public StringProperty getNameProperty(){
         return name;
+    }
+
+    public void setName(String text) {
+        this.name.setValue(text);
     }
 }
