@@ -18,10 +18,12 @@ public class ChooseSongPresenter {
     private List<Song> songList;
     private Drive service;
     private GoogleDriveTransfer googleDriveTransfer;
+    private Song currentSong;
 
-    public ChooseSongPresenter(List<Song> songList){
+    public ChooseSongPresenter(List<Song> songList,Song currentSong){
         this.songList = songList;
         this.googleDriveTransfer = new GoogleDriveTransfer();
+        this.currentSong = currentSong;
     }
 
     public void setService(Drive service){this.service = service;}
@@ -63,7 +65,7 @@ public class ChooseSongPresenter {
         String folderID = folder.getId();
         System.out.println("folder: " + folder.getName() + ' ' + folder.getId());
         files = googleDriveTransfer.getFilesFromFolder(folderID,service);
-
+        currentSong.setName(folderName);
         }catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,11 +79,14 @@ public class ChooseSongPresenter {
 
 
     public void deleteTracksFromResources() throws UnsupportedEncodingException {
-        java.io.File dir = new java.io.File(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(),"UTF-8").substring(1));
+        System.out.println(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(),"UTF-8"));
+        java.io.File dir = new java.io.File(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(),"UTF-8"));
         System.out.println(dir.getAbsolutePath());
         java.io.File[] dirList = dir.listFiles();
-        for(java.io.File file: dirList){
-            file.delete();
+        if (dirList != null) {
+            for(java.io.File file: dirList){
+                file.delete();
+            }
         }
     }
 }

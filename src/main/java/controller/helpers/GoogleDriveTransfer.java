@@ -18,9 +18,11 @@ public class GoogleDriveTransfer {
     }
 
     public void downloadFile(Drive service,File file) throws IOException {
-        String outputPath = URLDecoder.decode(getClass().getResource("/SongFiles/").getPath(),"UTF-8").substring(1) + file.getName();
+        String outputPath = URLDecoder.decode(getClass().getResource("/SongFiles/").getPath(),"UTF-8") + file.getName();
         System.out.println("out =>" + outputPath);
-        OutputStream outputStream= new FileOutputStream(outputPath);
+        java.io.File file2 = new java.io.File(outputPath);
+        file2.createNewFile();
+        OutputStream outputStream= new FileOutputStream(file2);
         service.files().get(file.getId()).executeMediaAndDownloadTo(outputStream);
         outputStream.close();
 
@@ -36,7 +38,7 @@ public class GoogleDriveTransfer {
             jsonObject.put("description",file.getDescription().toString());
         }
 
-        try(FileWriter localFile = new FileWriter(URLDecoder.decode(getClass().getResource("/SongFiles/").getPath(),"UTF-8").substring(1) + file.getName() + ".json")){
+        try(FileWriter localFile = new FileWriter(URLDecoder.decode(getClass().getResource("/SongFiles/").getPath(),"UTF-8") + file.getName() + ".json")){
             localFile.write(jsonObject.toString());
             localFile.flush();
         }catch (IOException e){

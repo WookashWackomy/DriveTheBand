@@ -207,7 +207,6 @@ public class MainAppView{
         deleteSelectedButton.disableProperty().bind(Bindings.or(size(trackObservableList).isEqualTo(0),size(trackTable.getSelectionModel().getSelectedItems()).isEqualTo(0)));
         userNameTextField.setOnKeyReleased(event -> {
             currentUser.setName(userNameTextField.getText());
-            event.consume();
         });
     }
 
@@ -216,6 +215,9 @@ public class MainAppView{
             songTitleLabel.setText(currentSong.getNameProperty().getValue());
         });
         trackObservableList.addListener((ListChangeListener<Track>) c -> trackTable.setItems(trackObservableList));
+        currentSong.getNameProperty().addListener((v,oldVal,newVal)->{
+            userNameTextField.setText(currentUser.getNameProperty().getValue());
+        });
     }
 
     public Parent asParent(){

@@ -3,11 +3,6 @@ package controller;
 import com.google.api.services.drive.Drive;
 import controller.helpers.GoogleDriveTransfer;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
@@ -134,7 +129,7 @@ public class DriveTheBandController{
         tracks.clear();
         File dir = null;
         try {
-            dir = new File(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(), "UTF-8").substring(1));
+            dir = new File(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -146,33 +141,35 @@ public class DriveTheBandController{
         String songName = null;
         LocalDateTime date = null;
         String userName = null;
-        for (File file : dirList) {
-            try {
-                if (FilenameUtils.getExtension(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(), "UTF-8").substring(1) + file.getName()).equals("mp3")){
-                    try {
-                        Object obj = parser.parse(new FileReader(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(), "UTF-8").substring(1) + "/" + file.getName() + ".json"));
-                        JSONObject jsonObject = (JSONObject) obj;
-                        parentID = (String) jsonObject.get("parentID");
-                        fileID = (String) jsonObject.get("fileID");
-                        String createdTime = (String) jsonObject.get("createdTime");
-                        songName = service.files().get(parentID).setFields("id,name").execute().getName();
-                        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-                        date = LocalDateTime.parse(createdTime,formatter);
-                        userName = (String) jsonObject.get("description");
-                    } catch (IOException | ParseException e) {
-                        e.printStackTrace();
-                    }
-                    User songUser = new User(userName);
+        if (dirList != null) {
+            for (File file : dirList) {
+                try {
+                    if (FilenameUtils.getExtension(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(), "UTF-8") + file.getName()).equals("mp3")){
+                        try {
+                            Object obj = parser.parse(new FileReader(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(), "UTF-8")+ "/" + file.getName() + ".json"));
+                            JSONObject jsonObject = (JSONObject) obj;
+                            parentID = (String) jsonObject.get("parentID");
+                            fileID = (String) jsonObject.get("fileID");
+                            String createdTime = (String) jsonObject.get("createdTime");
+                            songName = service.files().get(parentID).setFields("id,name").execute().getName();
+                            DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+                            date = LocalDateTime.parse(createdTime,formatter);
+                            userName = (String) jsonObject.get("description");
+                        } catch (IOException | ParseException e) {
+                            e.printStackTrace();
+                        }
+                        User songUser = new User(userName);
 
-                    currentSong.setName(songName);
-                    currentSong.setID(parentID);
-                    Track track = new Track(currentSong, file.getName(), getClass().getResource("/SongFiles/" + file.getName()), fileID,date);
-                    track.setCreator(songUser);
-                    tracks.add(track);
+                        currentSong.setName(songName);
+                        currentSong.setID(parentID);
+                        Track track = new Track(currentSong, file.getName(), getClass().getResource("/SongFiles/" + file.getName()), fileID,date);
+                        track.setCreator(songUser);
+                        tracks.add(track);
+                    }
+                    currentSong.setTracks(tracks);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
-                currentSong.setTracks(tracks);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
             }
         }
     }

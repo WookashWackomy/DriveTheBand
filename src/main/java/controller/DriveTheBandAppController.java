@@ -45,7 +45,7 @@ public class DriveTheBandAppController {
     public void initialize() {
         initGoogleDrive();
         initLayout();
-        chooseSongPresenter = new ChooseSongPresenter(songList);
+        chooseSongPresenter = new ChooseSongPresenter(songList,currentSong);
         chooseSongPresenter.setService(service);
         chooseSongPresenter.setSongListTable();
         createSongPresenter = new CreateSongPresenter(songList,currentSong,currentUser);

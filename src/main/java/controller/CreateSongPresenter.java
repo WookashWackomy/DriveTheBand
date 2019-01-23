@@ -8,6 +8,8 @@ import model.Song;
 import model.User;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 public class CreateSongPresenter {
 
@@ -26,6 +28,7 @@ public class CreateSongPresenter {
 
     public void handleCreateAction(String songName, String userName) {
         try {
+            deleteTracksFromResources();
             currentSong.setName(songName);
             currentUser.setName(userName);
             currentSong.setUser(currentUser);
@@ -39,4 +42,16 @@ public class CreateSongPresenter {
         }
     }
     public void setService(Drive service){this.service = service;}
+
+    public void deleteTracksFromResources() throws UnsupportedEncodingException {
+        System.out.println(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(),"UTF-8"));
+        java.io.File dir = new java.io.File(URLDecoder.decode(getClass().getResource("/SongFiles").getPath(),"UTF-8"));
+        System.out.println(dir.getAbsolutePath());
+        java.io.File[] dirList = dir.listFiles();
+        if (dirList != null) {
+            for(java.io.File file: dirList){
+                file.delete();
+            }
+        }
+    }
 }

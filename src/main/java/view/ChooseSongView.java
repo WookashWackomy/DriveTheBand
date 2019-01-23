@@ -40,7 +40,7 @@ public class ChooseSongView{
 
 
         view.setPrefHeight(400);
-        view.setPrefWidth(200);
+        view.setPrefWidth(300);
         view.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         songNameColumn.setText("Choose song");
@@ -53,12 +53,12 @@ public class ChooseSongView{
         hBox.setBackground(new Background(new BackgroundFill(Color.DARKGREY,CornerRadii.EMPTY, Insets.EMPTY)));
 
         cancelButton.setMnemonicParsing(false);
-        cancelButton.setPrefWidth(60.0);
+        cancelButton.setPrefWidth(80.0);
         cancelButton.setText("Cancel");
         HBox.setMargin(cancelButton, new Insets(5.0));
 
         okButton.setMnemonicParsing(false);
-        okButton.setPrefWidth(60.0);
+        okButton.setPrefWidth(80.0);
         okButton.setText("Ok");
         HBox.setMargin(okButton, new Insets(5.0));
         BorderPane.setMargin(hBox, new Insets(5.0, 5.0, 0.0, 5.0));
@@ -86,7 +86,6 @@ public class ChooseSongView{
             closeWindow();
         });
         songObservableList.addListener((ListChangeListener<Song>) c -> songTable.setItems(songObservableList));
-
     }
 
     private void closeWindow() {
